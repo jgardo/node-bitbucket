@@ -14,7 +14,6 @@ export type EndpointDefaults = EndpointParams & {
   baseUrl: string
   headers: {
     accept: string
-    'user-agent': string
   }
 }
 

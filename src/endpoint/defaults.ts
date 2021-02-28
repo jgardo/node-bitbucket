@@ -7,7 +7,6 @@ export const DEFAULTS: EndpointDefaults = {
   method: `GET`,
   baseUrl: `${schemes[0]}://${host}${basePath}`,
   headers: {
-    accept: `application/json`,
-    'user-agent': `bitbucket.js/${version}`,
+    accept: `application/json`
   },
 }

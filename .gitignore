@@ -60,13 +60,8 @@ typings/
 # next.js build output
 .next
 
-# type definitions are generated before publish
-**/*.d.ts
-
 # Others
 .rpt2_cache
-docs
-lib
 /bitbucket-test.js
 
 # Mac

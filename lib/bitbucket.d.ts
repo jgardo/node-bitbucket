@@ -101,7 +101,6 @@ export namespace Schema {
     approved?: boolean
     participated_on?: string
     role?: 'PARTICIPANT' | 'REVIEWER'
-    state?: 'approved' | 'changes_requested' | null
     user?: User
     [k: string]: unknown
   }
@@ -355,12 +354,10 @@ export namespace Schema {
       | 'force'
       | 'restrict_merges'
       | 'enforce_merge_checks'
-      | 'reset_pullrequest_changes_requested_on_change'
       | 'require_approvals_to_merge'
       | 'allow_auto_merge_when_builds_pass'
       | 'delete'
       | 'require_all_dependencies_merged'
-      | 'require_no_changes_requested'
       | 'push'
       | 'require_passing_builds_to_merge'
       | 'reset_pullrequest_approvals_on_change'
@@ -391,50 +388,6 @@ export namespace Schema {
     name?: string
     owner?: Account
     slug?: string
-    workspace?: Workspace
-    [k: string]: unknown
-  }
-  export type Workspace = Object & {
-    created_on?: string
-    is_private?: boolean
-    links?: {
-      avatar?: {
-        href?: string
-        name?: string
-      }
-      html?: {
-        href?: string
-        name?: string
-      }
-      members?: {
-        href?: string
-        name?: string
-      }
-      owners?: {
-        href?: string
-        name?: string
-      }
-      projects?: {
-        href?: string
-        name?: string
-      }
-      repositories?: {
-        href?: string
-        name?: string
-      }
-      self?: {
-        href?: string
-        name?: string
-      }
-      snippets?: {
-        href?: string
-        name?: string
-      }
-    }
-    name?: string
-    slug?: string
-    updated_on?: string
-    uuid?: string
     [k: string]: unknown
   }
   export type CommitComment = Comment & {
@@ -659,16 +612,6 @@ export namespace Schema {
       }
     }
     name?: string
-    [k: string]: unknown
-  }
-  export type PipelineCache = Object & {
-    created_on?: string
-    file_size_bytes?: number
-    name?: string
-    path?: string
-    pipeline_uuid?: string
-    step_uuid?: string
-    uuid?: string
     [k: string]: unknown
   }
   export type PipelineKnownHost = Object & {
@@ -924,15 +867,13 @@ export namespace Schema {
     events?: (
       | 'pullrequest:unapproved'
       | 'issue:comment_created'
-      | 'repo:imported'
-      | 'repo:created'
-      | 'repo:commit_comment_created'
       | 'pullrequest:approved'
+      | 'repo:created'
+      | 'repo:deleted'
+      | 'repo:imported'
       | 'pullrequest:comment_updated'
       | 'issue:updated'
       | 'project:updated'
-      | 'repo:deleted'
-      | 'pullrequest:changes_request_created'
       | 'pullrequest:comment_created'
       | 'repo:commit_status_updated'
       | 'pullrequest:updated'
@@ -943,10 +884,10 @@ export namespace Schema {
       | 'repo:updated'
       | 'pullrequest:rejected'
       | 'pullrequest:fulfilled'
-      | 'pullrequest:created'
-      | 'pullrequest:changes_request_removed'
-      | 'repo:transfer'
       | 'repo:push'
+      | 'pullrequest:created'
+      | 'repo:transfer'
+      | 'repo:commit_comment_created'
     )[]
     subject?: Object
     subject_type?: 'workspace' | 'user' | 'repository' | 'team'
@@ -963,6 +904,49 @@ export namespace Schema {
     }
     user?: Account
     workspace?: Workspace
+    [k: string]: unknown
+  }
+  export type Workspace = Object & {
+    created_on?: string
+    is_private?: boolean
+    links?: {
+      avatar?: {
+        href?: string
+        name?: string
+      }
+      html?: {
+        href?: string
+        name?: string
+      }
+      members?: {
+        href?: string
+        name?: string
+      }
+      owners?: {
+        href?: string
+        name?: string
+      }
+      projects?: {
+        href?: string
+        name?: string
+      }
+      repositories?: {
+        href?: string
+        name?: string
+      }
+      self?: {
+        href?: string
+        name?: string
+      }
+      snippets?: {
+        href?: string
+        name?: string
+      }
+    }
+    name?: string
+    slug?: string
+    updated_on?: string
+    uuid?: string
     [k: string]: unknown
   }
   export type PipelineBuildNumber = Object & {
@@ -1015,7 +999,6 @@ export namespace Schema {
     [k: string]: unknown
   }
   export interface ExportOptions {
-    include_attachments?: boolean
     project_key?: string
     project_name?: string
     send_email?: boolean
@@ -1115,14 +1098,6 @@ export namespace Schema {
     previous?: string
     size?: number
     values?: Branchrestriction[]
-  }
-  export interface PaginatedChangeset {
-    next?: string
-    page?: number
-    pagelen?: number
-    previous?: string
-    size?: number
-    values?: BaseCommit[]
   }
   export interface PaginatedCommitComments {
     next?: string
@@ -1230,15 +1205,13 @@ export namespace Schema {
     event?:
       | 'pullrequest:unapproved'
       | 'issue:comment_created'
-      | 'repo:imported'
-      | 'repo:created'
-      | 'repo:commit_comment_created'
       | 'pullrequest:approved'
+      | 'repo:created'
+      | 'repo:deleted'
+      | 'repo:imported'
       | 'pullrequest:comment_updated'
       | 'issue:updated'
       | 'project:updated'
-      | 'repo:deleted'
-      | 'pullrequest:changes_request_created'
       | 'pullrequest:comment_created'
       | 'repo:commit_status_updated'
       | 'pullrequest:updated'
@@ -1249,10 +1222,10 @@ export namespace Schema {
       | 'repo:updated'
       | 'pullrequest:rejected'
       | 'pullrequest:fulfilled'
-      | 'pullrequest:created'
-      | 'pullrequest:changes_request_removed'
-      | 'repo:transfer'
       | 'repo:push'
+      | 'pullrequest:created'
+      | 'repo:transfer'
+      | 'repo:commit_comment_created'
     label?: string
   }
   export interface PaginatedIssueAttachments {
@@ -1294,15 +1267,6 @@ export namespace Schema {
     previous?: string
     size?: number
     values?: Milestone[]
-  }
-  export interface PaginatedPipelineCaches {
-    next?: string
-    page?: number
-    pagelen?: number
-    previous?: string
-    size?: number
-    values?: PipelineCache[]
-    [k: string]: unknown
   }
   export interface PaginatedPipelineKnownHosts {
     next?: string
@@ -1509,7 +1473,7 @@ export namespace Schema {
     values?: TeamPermission[]
   }
   export interface TeamPermission {
-    permission?: 'admin' | 'collaborator' | 'member'
+    permission?: 'admin' | 'collaborator'
     team?: Team
     type: string
     user?: User
@@ -1576,10 +1540,6 @@ export namespace Schema {
     previous?: string
     size?: number
     values?: Workspace[]
-  }
-  export interface PipelineCacheContentUri {
-    uri?: string
-    [k: string]: unknown
   }
   export interface PullrequestMergeParameters {
     close_source_branch?: boolean
@@ -1701,13 +1661,13 @@ export namespace Params {
     workspace: string
   }
   export type CommitsCreateApproval = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
   }
   export type CommitsCreateComment = {
     _body: Schema.CommitComment
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
   }
@@ -1734,7 +1694,7 @@ export namespace Params {
     workspace: string
   }
   export type CommitsDeleteApproval = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
   }
@@ -1745,7 +1705,7 @@ export namespace Params {
     workspace: string
   }
   export type CommitsGet = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
     fields?: string
@@ -1771,7 +1731,7 @@ export namespace Params {
   }
   export type CommitsGetComment = {
     comment_id: number
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
     fields?: string
@@ -1815,7 +1775,6 @@ export namespace Params {
     exclude?: string
     include?: string
     repo_slug: string
-    revision: string
     workspace: string
     page?: string
     pagelen?: number
@@ -1827,7 +1786,6 @@ export namespace Params {
     exclude?: string
     include?: string
     repo_slug: string
-    revision: string
     workspace: string
     page?: string
     pagelen?: number
@@ -1858,7 +1816,7 @@ export namespace Params {
     sort?: string
   }
   export type CommitsListComments = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
     page?: string
@@ -1869,19 +1827,19 @@ export namespace Params {
   }
   export type CommitstatusesCreateBuildStatus = {
     _body?: Schema.Commitstatus
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
   }
   export type CommitstatusesGetBuildStatus = {
-    commit: string
     key: string
+    node: string
     repo_slug: string
     workspace: string
     fields?: string
   }
   export type CommitstatusesList = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
     page?: string
@@ -1902,8 +1860,8 @@ export namespace Params {
   }
   export type CommitstatusesUpdateBuildStatus = {
     _body?: Schema.Commitstatus
-    commit: string
     key: string
+    node: string
     repo_slug: string
     workspace: string
   }
@@ -2027,7 +1985,7 @@ export namespace Params {
   }
   export type IssueTrackerCreateAttachments = {
     _body: FormData
-    issue_id: string
+    issue_id: number
     repo_slug: string
     workspace: string
   }
@@ -2066,7 +2024,7 @@ export namespace Params {
   }
   export type IssueTrackerDeleteComment = {
     _body: Schema.IssueComment
-    comment_id: number
+    comment_id: string
     issue_id: string
     repo_slug: string
     workspace: string
@@ -2102,7 +2060,7 @@ export namespace Params {
     fields?: string
   }
   export type IssueTrackerGetComment = {
-    comment_id: number
+    comment_id: string
     issue_id: string
     repo_slug: string
     workspace: string
@@ -2148,7 +2106,7 @@ export namespace Params {
     fields?: string
   }
   export type IssueTrackerListAttachments = {
-    issue_id: string
+    issue_id: number
     repo_slug: string
     workspace: string
     page?: string
@@ -2212,7 +2170,7 @@ export namespace Params {
   }
   export type IssueTrackerUpdateComment = {
     _body: Schema.IssueComment
-    comment_id: number
+    comment_id: string
     issue_id: string
     repo_slug: string
     workspace: string
@@ -2232,10 +2190,6 @@ export namespace Params {
   export type PipelinesCreateKnownHost = {
     _body: Schema.PipelineKnownHost
     repo_slug: string
-    workspace: string
-  }
-  export type PipelinesCreatePipelineVariableForWorkspace = {
-    _body?: Schema.PipelineVariable
     workspace: string
   }
   export type PipelinesCreateSchedule = {
@@ -2264,15 +2218,6 @@ export namespace Params {
   }
   export type PipelinesDeleteKnownHost = {
     known_host_uuid: string
-    repo_slug: string
-    workspace: string
-  }
-  export type PipelinesDeletePipelineVariableForWorkspace = {
-    variable_uuid: string
-    workspace: string
-  }
-  export type PipelinesDeleteRepositoryPipelineCache = {
-    cache_uuid: string
     repo_slug: string
     workspace: string
   }
@@ -2313,34 +2258,6 @@ export namespace Params {
     known_host_uuid: string
     repo_slug: string
     workspace: string
-    fields?: string
-  }
-  export type PipelinesGetPipelineVariableForWorkspace = {
-    variable_uuid: string
-    workspace: string
-    fields?: string
-  }
-  export type PipelinesGetPipelineVariablesForWorkspace = {
-    workspace: string
-    page?: string
-    pagelen?: number
-    q?: string
-    sort?: string
-    fields?: string
-  }
-  export type PipelinesGetRepositoryPipelineCacheContentUri = {
-    cache_uuid: string
-    repo_slug: string
-    workspace: string
-    fields?: string
-  }
-  export type PipelinesGetRepositoryPipelineCaches = {
-    repo_slug: string
-    workspace: string
-    page?: string
-    pagelen?: number
-    q?: string
-    sort?: string
     fields?: string
   }
   export type PipelinesGetSchedule = {
@@ -2491,11 +2408,6 @@ export namespace Params {
     _body: Schema.PipelineKnownHost
     known_host_uuid: string
     repo_slug: string
-    workspace: string
-  }
-  export type PipelinesUpdatePipelineVariableForWorkspace = {
-    _body: Schema.PipelineVariable
-    variable_uuid: string
     workspace: string
   }
   export type PipelinesUpdateSchedule = {
@@ -2659,7 +2571,7 @@ export namespace Params {
     workspace: string
   }
   export type PullrequestsCreateApproval = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
@@ -2670,18 +2582,18 @@ export namespace Params {
     workspace: string
   }
   export type PullrequestsDecline = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
   export type PullrequestsDeleteApproval = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
   export type PullrequestsDeleteComment = {
-    comment_id: number
-    pull_request_id: number
+    comment_id: string
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
@@ -2697,8 +2609,8 @@ export namespace Params {
     fields?: string
   }
   export type PullrequestsGetComment = {
-    comment_id: number
-    pull_request_id: number
+    comment_id: string
+    pull_request_id: string
     repo_slug: string
     workspace: string
     fields?: string
@@ -2710,19 +2622,19 @@ export namespace Params {
     fields?: string
   }
   export type PullrequestsGetDiff = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
     fields?: string
   }
   export type PullrequestsGetDiffStat = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
     fields?: string
   }
   export type PullrequestsGetPatch = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
     fields?: string
@@ -2767,7 +2679,7 @@ export namespace Params {
     fields?: string
   }
   export type PullrequestsListCommits = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
     page?: string
@@ -2795,15 +2707,6 @@ export namespace Params {
     sort?: string
     fields?: string
   }
-  export type PullrequestsListPullrequestsForUser = {
-    selected_user: string
-    state?: 'MERGED' | 'SUPERSEDED' | 'OPEN' | 'DECLINED'
-    page?: string
-    pagelen?: number
-    q?: string
-    sort?: string
-    fields?: string
-  }
   export type PullrequestsListStatuses = {
     pull_request_id: number
     repo_slug: string
@@ -2816,7 +2719,7 @@ export namespace Params {
   }
   export type PullrequestsMerge = {
     _body?: Schema.PullrequestMergeParameters
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
@@ -2828,8 +2731,8 @@ export namespace Params {
   }
   export type PullrequestsUpdateComment = {
     _body: Schema.PullrequestComment
-    comment_id: number
-    pull_request_id: number
+    comment_id: string
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
@@ -2991,19 +2894,19 @@ export namespace Params {
     workspace: string
   }
   export type RepositoriesCreateCommitApproval = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
   }
   export type RepositoriesCreateCommitBuildStatus = {
     _body?: Schema.Commitstatus
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
   }
   export type RepositoriesCreateCommitComment = {
     _body: Schema.CommitComment
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
   }
@@ -3042,7 +2945,7 @@ export namespace Params {
   }
   export type RepositoriesCreateIssueAttachments = {
     _body: FormData
-    issue_id: string
+    issue_id: number
     repo_slug: string
     workspace: string
   }
@@ -3118,7 +3021,7 @@ export namespace Params {
     workspace: string
   }
   export type RepositoriesCreatePullRequestApproval = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
@@ -3149,7 +3052,7 @@ export namespace Params {
     workspace: string
   }
   export type RepositoriesDeclinePullRequest = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
@@ -3176,7 +3079,7 @@ export namespace Params {
     workspace: string
   }
   export type RepositoriesDeleteCommitApproval = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
   }
@@ -3226,7 +3129,7 @@ export namespace Params {
   }
   export type RepositoriesDeleteIssueComment = {
     _body: Schema.IssueComment
-    comment_id: number
+    comment_id: string
     issue_id: string
     repo_slug: string
     workspace: string
@@ -3261,13 +3164,13 @@ export namespace Params {
     workspace: string
   }
   export type RepositoriesDeletePullRequestApproval = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
   export type RepositoriesDeletePullRequestComment = {
-    comment_id: number
-    pull_request_id: number
+    comment_id: string
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
@@ -3287,11 +3190,6 @@ export namespace Params {
   export type RepositoriesDeleteRepositoryHostedPropertyValue = {
     app_key: string
     property_name: string
-    repo_slug: string
-    workspace: string
-  }
-  export type RepositoriesDeleteRepositoryPipelineCache = {
-    cache_uuid: string
     repo_slug: string
     workspace: string
   }
@@ -3352,21 +3250,21 @@ export namespace Params {
     fields?: string
   }
   export type RepositoriesGetCommit = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
     fields?: string
   }
   export type RepositoriesGetCommitBuildStatus = {
-    commit: string
     key: string
+    node: string
     repo_slug: string
     workspace: string
     fields?: string
   }
   export type RepositoriesGetCommitComment = {
     comment_id: number
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
     fields?: string
@@ -3442,7 +3340,7 @@ export namespace Params {
     fields?: string
   }
   export type RepositoriesGetIssueComment = {
-    comment_id: number
+    comment_id: string
     issue_id: string
     repo_slug: string
     workspace: string
@@ -3551,20 +3449,20 @@ export namespace Params {
     fields?: string
   }
   export type RepositoriesGetPullRequestComment = {
-    comment_id: number
-    pull_request_id: number
+    comment_id: string
+    pull_request_id: string
     repo_slug: string
     workspace: string
     fields?: string
   }
   export type RepositoriesGetPullRequestDiff = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
     fields?: string
   }
   export type RepositoriesGetPullRequestDiffStat = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
     fields?: string
@@ -3578,7 +3476,7 @@ export namespace Params {
     fields?: string
   }
   export type RepositoriesGetPullRequestPatch = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
     fields?: string
@@ -3605,21 +3503,6 @@ export namespace Params {
     property_name: string
     repo_slug: string
     workspace: string
-    fields?: string
-  }
-  export type RepositoriesGetRepositoryPipelineCacheContentUri = {
-    cache_uuid: string
-    repo_slug: string
-    workspace: string
-    fields?: string
-  }
-  export type RepositoriesGetRepositoryPipelineCaches = {
-    repo_slug: string
-    workspace: string
-    page?: string
-    pagelen?: number
-    q?: string
-    sort?: string
     fields?: string
   }
   export type RepositoriesGetTag = {
@@ -3664,7 +3547,7 @@ export namespace Params {
     fields?: string
   }
   export type RepositoriesListCommitComments = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
     page?: string
@@ -3677,7 +3560,6 @@ export namespace Params {
     exclude?: string
     include?: string
     repo_slug: string
-    revision: string
     workspace: string
     page?: string
     pagelen?: number
@@ -3689,7 +3571,6 @@ export namespace Params {
     exclude?: string
     include?: string
     repo_slug: string
-    revision: string
     workspace: string
     page?: string
     pagelen?: number
@@ -3720,7 +3601,7 @@ export namespace Params {
     sort?: string
   }
   export type RepositoriesListCommitStatuses = {
-    commit: string
+    node: string
     repo_slug: string
     workspace: string
     page?: string
@@ -3808,7 +3689,7 @@ export namespace Params {
     fields?: string
   }
   export type RepositoriesListFileHistory = {
-    commit: string
+    node: string
     path: string
     renames?: string
     repo_slug: string
@@ -3839,7 +3720,7 @@ export namespace Params {
     fields?: string
   }
   export type RepositoriesListIssueAttachments = {
-    issue_id: string
+    issue_id: number
     repo_slug: string
     workspace: string
     page?: string
@@ -3978,7 +3859,7 @@ export namespace Params {
     fields?: string
   }
   export type RepositoriesListPullRequestCommits = {
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
     page?: string
@@ -4064,14 +3945,14 @@ export namespace Params {
   }
   export type RepositoriesMergePullRequest = {
     _body?: Schema.PullrequestMergeParameters
-    pull_request_id: number
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
   export type RepositoriesReadSrc = {
-    commit: string
     format?: 'meta' | 'rendered'
     max_depth?: number
+    node: string
     path: string
     repo_slug: string
     workspace: string
@@ -4114,8 +3995,8 @@ export namespace Params {
   }
   export type RepositoriesUpdateCommitBuildStatus = {
     _body?: Schema.Commitstatus
-    commit: string
     key: string
+    node: string
     repo_slug: string
     workspace: string
   }
@@ -4152,7 +4033,7 @@ export namespace Params {
   }
   export type RepositoriesUpdateIssueComment = {
     _body: Schema.IssueComment
-    comment_id: number
+    comment_id: string
     issue_id: string
     repo_slug: string
     workspace: string
@@ -4198,8 +4079,8 @@ export namespace Params {
   }
   export type RepositoriesUpdatePullRequestComment = {
     _body: Schema.PullrequestComment
-    comment_id: number
-    pull_request_id: number
+    comment_id: string
+    pull_request_id: string
     repo_slug: string
     workspace: string
   }
@@ -4269,7 +4150,7 @@ export namespace Params {
     workspace: string
   }
   export type SnippetsDeleteComment = {
-    comment_id: number
+    comment_id: string
     encoded_id: string
     workspace: string
   }
@@ -4285,7 +4166,7 @@ export namespace Params {
     fields?: string
   }
   export type SnippetsGetComment = {
-    comment_id: number
+    comment_id: string
     encoded_id: string
     workspace: string
     fields?: string
@@ -4313,6 +4194,7 @@ export namespace Params {
   export type SnippetsGetPatch = {
     encoded_id: string
     revision: string
+    spec: string
     workspace: string
     fields?: string
   }
@@ -4384,7 +4266,7 @@ export namespace Params {
     workspace: string
   }
   export type SnippetsUpdateComment = {
-    comment_id: number
+    comment_id: string
     encoded_id: string
     workspace: string
   }
@@ -4399,7 +4281,7 @@ export namespace Params {
     workspace: string
   }
   export type SourceListHistory = {
-    commit: string
+    node: string
     path: string
     renames?: string
     repo_slug: string
@@ -4411,9 +4293,9 @@ export namespace Params {
     fields?: string
   }
   export type SourceRead = {
-    commit: string
     format?: 'meta' | 'rendered'
     max_depth?: number
+    node: string
     path: string
     repo_slug: string
     workspace: string
@@ -4435,19 +4317,19 @@ export namespace Params {
   }
   export type SshCreateKey = {
     _body?: Schema.SshAccountKey
-    selected_user: string
+    username: string
   }
   export type SshDeleteKey = {
     key_id: string
-    selected_user: string
+    username: string
   }
   export type SshGetKey = {
     key_id: string
-    selected_user: string
+    username: string
     fields?: string
   }
   export type SshListKeys = {
-    selected_user: string
+    username: string
     page?: string
     pagelen?: number
     q?: string
@@ -4457,7 +4339,7 @@ export namespace Params {
   export type SshUpdateKey = {
     _body?: Schema.SshAccountKey
     key_id: string
-    selected_user: string
+    username: string
   }
   export type TeamsCreatePipelineVariable = {
     _body?: Schema.PipelineVariable
@@ -4575,7 +4457,7 @@ export namespace Params {
     fields?: string
   }
   export type TeamsListRepositories = {
-    workspace: string
+    username: string
     page?: string
     pagelen?: number
     q?: string
@@ -4583,7 +4465,7 @@ export namespace Params {
     fields?: string
   }
   export type TeamsListRepositoriesForUser = {
-    workspace: string
+    username: string
     page?: string
     pagelen?: number
     q?: string
@@ -4651,10 +4533,10 @@ export namespace Params {
   }
   export type UsersCreateSshKey = {
     _body?: Schema.SshAccountKey
-    selected_user: string
+    username: string
   }
   export type UsersCreateWebhook = {
-    selected_user: string
+    username: string
   }
   export type UsersDeletePipelineVariable = {
     selected_user: string
@@ -4662,7 +4544,7 @@ export namespace Params {
   }
   export type UsersDeleteSshKey = {
     key_id: string
-    selected_user: string
+    username: string
   }
   export type UsersDeleteUserHostedPropertyValue = {
     app_key: string
@@ -4670,11 +4552,11 @@ export namespace Params {
     selected_user: string
   }
   export type UsersDeleteWebhook = {
-    selected_user: string
     uid: string
+    username: string
   }
   export type UsersGet = {
-    selected_user: string
+    username: string
     fields?: string
   }
   export type UsersGetAuthedUser = {
@@ -4691,7 +4573,7 @@ export namespace Params {
   }
   export type UsersGetSshKey = {
     key_id: string
-    selected_user: string
+    username: string
     fields?: string
   }
   export type UsersGetTeamMembers = {
@@ -4699,8 +4581,8 @@ export namespace Params {
     fields?: string
   }
   export type UsersGetWebhook = {
-    selected_user: string
     uid: string
+    username: string
     fields?: string
   }
   export type UsersListEmailsForAuthedUser = {
@@ -4719,7 +4601,7 @@ export namespace Params {
     fields?: string
   }
   export type UsersListRepositories = {
-    workspace: string
+    username: string
     page?: string
     pagelen?: number
     q?: string
@@ -4727,7 +4609,7 @@ export namespace Params {
     fields?: string
   }
   export type UsersListRepositoriesForTeam = {
-    workspace: string
+    username: string
     page?: string
     pagelen?: number
     q?: string
@@ -4735,7 +4617,7 @@ export namespace Params {
     fields?: string
   }
   export type UsersListSshKeys = {
-    selected_user: string
+    username: string
     page?: string
     pagelen?: number
     q?: string
@@ -4743,7 +4625,7 @@ export namespace Params {
     fields?: string
   }
   export type UsersListWebhooks = {
-    selected_user: string
+    username: string
     page?: string
     pagelen?: number
     q?: string
@@ -4769,7 +4651,7 @@ export namespace Params {
   export type UsersUpdateSshKey = {
     _body?: Schema.SshAccountKey
     key_id: string
-    selected_user: string
+    username: string
   }
   export type UsersUpdateUserHostedPropertyValue = {
     app_key: string
@@ -4777,8 +4659,8 @@ export namespace Params {
     selected_user: string
   }
   export type UsersUpdateWebhook = {
-    selected_user: string
     uid: string
+    username: string
   }
   export type WebhooksCreate = {
     _body: any
@@ -4789,7 +4671,7 @@ export namespace Params {
     username: string
   }
   export type WebhooksCreateForUser = {
-    selected_user: string
+    username: string
   }
   export type WebhooksCreateWebhookForWorkspace = {
     workspace: string
@@ -4804,8 +4686,8 @@ export namespace Params {
     username: string
   }
   export type WebhooksDeleteForUser = {
-    selected_user: string
     uid: string
+    username: string
   }
   export type WebhooksDeleteWebhookForWorkspace = {
     uid: string
@@ -4826,8 +4708,8 @@ export namespace Params {
     fields?: string
   }
   export type WebhooksGetForUser = {
-    selected_user: string
     uid: string
+    username: string
     fields?: string
   }
   export type WebhooksGetWebhookForWorkspace = {
@@ -4869,7 +4751,7 @@ export namespace Params {
     fields?: string
   }
   export type WebhooksListForUser = {
-    selected_user: string
+    username: string
     page?: string
     pagelen?: number
     q?: string
@@ -4886,8 +4768,8 @@ export namespace Params {
     username: string
   }
   export type WebhooksUpdateForUser = {
-    selected_user: string
     uid: string
+    username: string
   }
   export type WebhooksUpdateWebhookForWorkspace = {
     uid: string
@@ -4898,19 +4780,11 @@ export namespace Params {
     project_key: string
     workspace: string
   }
-  export type WorkspacesCreatePipelineVariableForWorkspace = {
-    _body?: Schema.PipelineVariable
-    workspace: string
-  }
   export type WorkspacesCreateProject = {
     _body: Schema.Project
     workspace: string
   }
   export type WorkspacesCreateWebhookForWorkspace = {
-    workspace: string
-  }
-  export type WorkspacesDeletePipelineVariableForWorkspace = {
-    variable_uuid: string
     workspace: string
   }
   export type WorkspacesDeleteProject = {
@@ -4927,19 +4801,6 @@ export namespace Params {
     fields?: string
   }
   export type WorkspacesGetMembersForWorkspace = {
-    workspace: string
-    page?: string
-    pagelen?: number
-    q?: string
-    sort?: string
-    fields?: string
-  }
-  export type WorkspacesGetPipelineVariableForWorkspace = {
-    variable_uuid: string
-    workspace: string
-    fields?: string
-  }
-  export type WorkspacesGetPipelineVariablesForWorkspace = {
     workspace: string
     page?: string
     pagelen?: number
@@ -4978,7 +4839,6 @@ export namespace Params {
     fields?: string
   }
   export type WorkspacesGetWorkspaces = {
-    role?: 'owner' | 'collaborator' | 'member'
     page?: string
     pagelen?: number
     q?: string
@@ -4989,11 +4849,6 @@ export namespace Params {
     search_query: string
     workspace: string
     fields?: string
-  }
-  export type WorkspacesUpdatePipelineVariableForWorkspace = {
-    _body: Schema.PipelineVariable
-    variable_uuid: string
-    workspace: string
   }
   export type WorkspacesUpdateWebhookForWorkspace = {
     uid: string
@@ -5071,18 +4926,10 @@ export interface APIEndpoints {
     getReportsForCommit: (
       params: Params.CommitsGetReportsForCommit
     ) => AsyncResponse<Schema.PaginatedReports>
-    list: (
-      params: Params.CommitsList
-    ) => AsyncResponse<Schema.PaginatedChangeset>
-    listAlt: (
-      params: Params.CommitsListAlt
-    ) => AsyncResponse<Schema.PaginatedChangeset>
-    listAt: (
-      params: Params.CommitsListAt
-    ) => AsyncResponse<Schema.PaginatedChangeset>
-    listAtAlt: (
-      params: Params.CommitsListAtAlt
-    ) => AsyncResponse<Schema.PaginatedChangeset>
+    list: (params: Params.CommitsList) => AsyncResponse<Schema.Any>
+    listAlt: (params: Params.CommitsListAlt) => AsyncResponse<Schema.Any>
+    listAt: (params: Params.CommitsListAt) => AsyncResponse<Schema.Any>
+    listAtAlt: (params: Params.CommitsListAtAlt) => AsyncResponse<Schema.Any>
     listComments: (
       params: Params.CommitsListComments
     ) => AsyncResponse<Schema.PaginatedCommitComments>
@@ -5239,9 +5086,6 @@ export interface APIEndpoints {
     createKnownHost: (
       params: Params.PipelinesCreateKnownHost
     ) => AsyncResponse<Schema.PipelineKnownHost>
-    createPipelineVariableForWorkspace: (
-      params: Params.PipelinesCreatePipelineVariableForWorkspace
-    ) => AsyncResponse<Schema.PipelineVariable>
     createSchedule: (
       params: Params.PipelinesCreateSchedule
     ) => AsyncResponse<Schema.PipelineSchedule>
@@ -5259,12 +5103,6 @@ export interface APIEndpoints {
     ) => AsyncResponse<Schema.Any>
     deleteKnownHost: (
       params: Params.PipelinesDeleteKnownHost
-    ) => AsyncResponse<Schema.Any>
-    deletePipelineVariableForWorkspace: (
-      params: Params.PipelinesDeletePipelineVariableForWorkspace
-    ) => AsyncResponse<Schema.Any>
-    deleteRepositoryPipelineCache: (
-      params: Params.PipelinesDeleteRepositoryPipelineCache
     ) => AsyncResponse<Schema.Any>
     deleteSchedule: (
       params: Params.PipelinesDeleteSchedule
@@ -5288,18 +5126,6 @@ export interface APIEndpoints {
     getKnownHost: (
       params: Params.PipelinesGetKnownHost
     ) => AsyncResponse<Schema.PipelineKnownHost>
-    getPipelineVariableForWorkspace: (
-      params: Params.PipelinesGetPipelineVariableForWorkspace
-    ) => AsyncResponse<Schema.PipelineVariable>
-    getPipelineVariablesForWorkspace: (
-      params: Params.PipelinesGetPipelineVariablesForWorkspace
-    ) => AsyncResponse<Schema.PaginatedPipelineVariables>
-    getRepositoryPipelineCacheContentUri: (
-      params: Params.PipelinesGetRepositoryPipelineCacheContentUri
-    ) => AsyncResponse<Schema.PipelineCacheContentUri>
-    getRepositoryPipelineCaches: (
-      params: Params.PipelinesGetRepositoryPipelineCaches
-    ) => AsyncResponse<Schema.PaginatedPipelineCaches>
     getSchedule: (
       params: Params.PipelinesGetSchedule
     ) => AsyncResponse<Schema.PipelineSchedule>
@@ -5361,9 +5187,6 @@ export interface APIEndpoints {
     updateKnownHost: (
       params: Params.PipelinesUpdateKnownHost
     ) => AsyncResponse<Schema.PipelineKnownHost>
-    updatePipelineVariableForWorkspace: (
-      params: Params.PipelinesUpdatePipelineVariableForWorkspace
-    ) => AsyncResponse<Schema.PipelineVariable>
     updateSchedule: (
       params: Params.PipelinesUpdateSchedule
     ) => AsyncResponse<Schema.PipelineSchedule>
@@ -5504,9 +5327,6 @@ export interface APIEndpoints {
     ) => AsyncResponse<Schema.Any>
     listForCommit: (
       params: Params.PullrequestsListForCommit
-    ) => AsyncResponse<Schema.PaginatedPullrequests>
-    listPullrequestsForUser: (
-      params: Params.PullrequestsListPullrequestsForUser
     ) => AsyncResponse<Schema.PaginatedPullrequests>
     listStatuses: (
       params: Params.PullrequestsListStatuses
@@ -5741,9 +5561,6 @@ export interface APIEndpoints {
     deleteRepositoryHostedPropertyValue: (
       params: Params.RepositoriesDeleteRepositoryHostedPropertyValue
     ) => AsyncResponse<Schema.Any>
-    deleteRepositoryPipelineCache: (
-      params: Params.RepositoriesDeleteRepositoryPipelineCache
-    ) => AsyncResponse<Schema.Any>
     deleteTag: (
       params: Params.RepositoriesDeleteTag
     ) => AsyncResponse<Schema.Any>
@@ -5882,12 +5699,6 @@ export interface APIEndpoints {
     getRepositoryHostedPropertyValue: (
       params: Params.RepositoriesGetRepositoryHostedPropertyValue
     ) => AsyncResponse<Schema.Any>
-    getRepositoryPipelineCacheContentUri: (
-      params: Params.RepositoriesGetRepositoryPipelineCacheContentUri
-    ) => AsyncResponse<Schema.PipelineCacheContentUri>
-    getRepositoryPipelineCaches: (
-      params: Params.RepositoriesGetRepositoryPipelineCaches
-    ) => AsyncResponse<Schema.PaginatedPipelineCaches>
     getTag: (params: Params.RepositoriesGetTag) => AsyncResponse<Schema.Tag>
     getWebhook: (
       params: Params.RepositoriesGetWebhook
@@ -5906,16 +5717,16 @@ export interface APIEndpoints {
     ) => AsyncResponse<Schema.PaginatedCommitComments>
     listCommits: (
       params: Params.RepositoriesListCommits
-    ) => AsyncResponse<Schema.PaginatedChangeset>
+    ) => AsyncResponse<Schema.Any>
     listCommitsAlt: (
       params: Params.RepositoriesListCommitsAlt
-    ) => AsyncResponse<Schema.PaginatedChangeset>
+    ) => AsyncResponse<Schema.Any>
     listCommitsAt: (
       params: Params.RepositoriesListCommitsAt
-    ) => AsyncResponse<Schema.PaginatedChangeset>
+    ) => AsyncResponse<Schema.Any>
     listCommitsAtAlt: (
       params: Params.RepositoriesListCommitsAtAlt
-    ) => AsyncResponse<Schema.PaginatedChangeset>
+    ) => AsyncResponse<Schema.Any>
     listCommitStatuses: (
       params: Params.RepositoriesListCommitStatuses
     ) => AsyncResponse<Schema.PaginatedCommitstatuses>
@@ -6430,18 +6241,12 @@ export interface APIEndpoints {
     createOrUpdateProject: (
       params: Params.WorkspacesCreateOrUpdateProject
     ) => AsyncResponse<Schema.Project>
-    createPipelineVariableForWorkspace: (
-      params: Params.WorkspacesCreatePipelineVariableForWorkspace
-    ) => AsyncResponse<Schema.PipelineVariable>
     createProject: (
       params: Params.WorkspacesCreateProject
     ) => AsyncResponse<Schema.Project>
     createWebhookForWorkspace: (
       params: Params.WorkspacesCreateWebhookForWorkspace
     ) => AsyncResponse<Schema.WebhookSubscription>
-    deletePipelineVariableForWorkspace: (
-      params: Params.WorkspacesDeletePipelineVariableForWorkspace
-    ) => AsyncResponse<Schema.Any>
     deleteProject: (
       params: Params.WorkspacesDeleteProject
     ) => AsyncResponse<Schema.Any>
@@ -6454,12 +6259,6 @@ export interface APIEndpoints {
     getMembersForWorkspace: (
       params: Params.WorkspacesGetMembersForWorkspace
     ) => AsyncResponse<Schema.PaginatedWorkspaceMemberships>
-    getPipelineVariableForWorkspace: (
-      params: Params.WorkspacesGetPipelineVariableForWorkspace
-    ) => AsyncResponse<Schema.PipelineVariable>
-    getPipelineVariablesForWorkspace: (
-      params: Params.WorkspacesGetPipelineVariablesForWorkspace
-    ) => AsyncResponse<Schema.PaginatedPipelineVariables>
     getProject: (
       params: Params.WorkspacesGetProject
     ) => AsyncResponse<Schema.Project>
@@ -6481,9 +6280,6 @@ export interface APIEndpoints {
     searchAccount: (
       params: Params.WorkspacesSearchAccount
     ) => AsyncResponse<Schema.SearchResultPage>
-    updatePipelineVariableForWorkspace: (
-      params: Params.WorkspacesUpdatePipelineVariableForWorkspace
-    ) => AsyncResponse<Schema.PipelineVariable>
     updateWebhookForWorkspace: (
       params: Params.WorkspacesUpdateWebhookForWorkspace
     ) => AsyncResponse<Schema.WebhookSubscription>
